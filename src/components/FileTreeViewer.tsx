@@ -18,6 +18,7 @@ interface FileTreeViewerProps {
   selectedPath: string;
   onSelectFile: (path: string) => void;
   isLoading: boolean;
+  className?: string;
 }
 
 interface TreeNode {
@@ -62,6 +63,7 @@ export const FileTreeViewer: React.FC<FileTreeViewerProps> = ({
   selectedPath,
   onSelectFile,
   isLoading,
+  className,
 }) => {
   const [search, setSearch] = useState('');
   const [collapsedFolders, setCollapsedFolders] = useState<Record<string, boolean>>({});
@@ -158,14 +160,18 @@ export const FileTreeViewer: React.FC<FileTreeViewerProps> = ({
               id={`file-tree-item-${node.path.replace(/[/.]/g, '-')}`}
               onClick={() => onSelectFile(node.path)}
               style={{ paddingLeft: `${depth * 12 + 16}px` }}
-              className={`w-full text-left py-1.5 pr-2 rounded-md flex items-center justify-between gap-2 text-xs transition ${
+              className={`w-full text-left py-1 pr-2 rounded flex items-center justify-between gap-2 text-xs font-mono transition ${
                 isSelected
-                  ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/40 font-medium'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                  ? 'text-indigo-400 bg-indigo-500/10 border-l-2 border-indigo-500 font-medium'
+                  : 'text-slate-400 hover:text-slate-100 hover:bg-slate-900/60'
               }`}
             >
-              <div className="flex items-center gap-1.5 min-w-0">
-                {getFileIcon(node.name)}
+              <div className="flex items-center gap-2 min-w-0">
+                <span
+                  className={`w-1 h-1 rounded-full shrink-0 ${
+                    isSelected ? 'bg-indigo-400' : 'bg-slate-600'
+                  }`}
+                />
                 <span className="truncate">{node.name}</span>
               </div>
               {node.size !== undefined && (
@@ -181,14 +187,13 @@ export const FileTreeViewer: React.FC<FileTreeViewerProps> = ({
   };
 
   return (
-    <div id="file-tree-panel" className="flex flex-col h-full bg-slate-950/70 border-r border-slate-800 w-full md:w-64 lg:w-72 shrink-0">
+    <div id="file-tree-panel" className={`flex flex-col h-full bg-slate-950 border-r border-slate-800 w-full md:w-64 lg:w-72 shrink-0 ${className || ''}`}>
       {/* Header & Search */}
-      <div className="p-3 border-b border-slate-800 space-y-2">
-        <div className="flex items-center justify-between text-xs font-semibold text-slate-300 uppercase tracking-wider">
-          <div className="flex items-center gap-1.5">
-            <FileCheck className="w-3.5 h-3.5 text-indigo-400" />
-            <span>Repository Files</span>
-          </div>
+      <div className="p-4 border-b border-slate-800 space-y-3">
+        <div className="flex items-center justify-between">
+          <h2 className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">
+            Workspace Files
+          </h2>
           <span className="text-[10px] text-slate-500 font-mono">
             {items.filter((i) => i.type === 'blob').length} files
           </span>
@@ -202,20 +207,20 @@ export const FileTreeViewer: React.FC<FileTreeViewerProps> = ({
             placeholder="Filter files..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-slate-900 border border-slate-800 rounded-lg pl-8 pr-2.5 py-1 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+            className="w-full bg-slate-900 border border-slate-800 rounded pl-8 pr-2.5 py-1 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 font-mono"
           />
         </div>
       </div>
 
       {/* File Tree List */}
-      <div className="flex-1 overflow-y-auto p-2">
+      <div className="flex-1 overflow-y-auto p-3">
         {isLoading ? (
           <div className="flex flex-col items-center justify-center p-8 space-y-2 text-slate-500 text-xs">
             <div className="w-5 h-5 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
-            <span>Loading file tree...</span>
+            <span className="font-mono text-[11px]">Loading file tree...</span>
           </div>
         ) : Object.keys(treeRoot).length === 0 ? (
-          <div className="p-6 text-center text-xs text-slate-500">
+          <div className="p-6 text-center text-xs text-slate-500 font-mono">
             {search ? `No files matching "${search}"` : 'No files found in this repository branch.'}
           </div>
         ) : (

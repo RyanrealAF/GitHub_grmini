@@ -57,14 +57,14 @@ export const RepoSelector: React.FC<RepoSelectorProps> = ({
   );
 
   return (
-    <div id="repo-selector-container" className="bg-slate-900/90 border-b border-slate-800 p-3 sm:p-4">
+    <div id="repo-selector-container" className="bg-slate-950 border-b border-slate-800 p-3 sm:px-6 sm:py-3.5">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
         {/* Repo Picker & Manual Input */}
-        <div className="flex flex-1 items-center gap-2 relative">
-          <div className="flex items-center gap-2 text-slate-400 pl-1">
+        <div className="flex flex-1 items-center gap-3 relative">
+          <div className="flex items-center gap-2 text-slate-400">
             <FolderGit2 className="w-4 h-4 text-indigo-400 shrink-0" />
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 hidden sm:inline">
-              Repo:
+            <span className="text-[10px] uppercase tracking-widest text-slate-500 font-bold hidden sm:inline">
+              Target Repository
             </span>
           </div>
 
@@ -76,13 +76,13 @@ export const RepoSelector: React.FC<RepoSelectorProps> = ({
                 value={customInput}
                 onChange={(e) => setCustomInput(e.target.value)}
                 onFocus={() => userRepos.length > 0 && setIsDropdownOpen(true)}
-                placeholder="owner/repository-name (e.g. facebook/react)"
-                className="w-full bg-slate-950 border border-slate-700/80 rounded-lg px-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 font-mono focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50"
+                placeholder="owner/repository-name (e.g. google/genai-sdk)"
+                className="w-full bg-slate-900 border border-slate-700/80 rounded px-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 font-mono focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/30"
               />
               <button
                 type="submit"
                 id="btn-load-repo"
-                className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium rounded-lg border border-slate-700 transition shrink-0 flex items-center gap-1"
+                className="px-4 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-200 text-[10px] font-semibold uppercase tracking-wider rounded border border-slate-700 transition shrink-0 flex items-center gap-1.5"
                 title="Load Repository"
               >
                 <span>Load</span>
@@ -97,8 +97,8 @@ export const RepoSelector: React.FC<RepoSelectorProps> = ({
                   className="fixed inset-0 z-20"
                   onClick={() => setIsDropdownOpen(false)}
                 />
-                <div className="absolute left-0 right-0 top-full mt-1.5 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl z-30 max-h-80 overflow-hidden flex flex-col">
-                  <div className="p-2 border-b border-slate-800 bg-slate-950/60">
+                <div className="absolute left-0 right-0 top-full mt-1.5 bg-slate-900 border border-slate-700 rounded shadow-2xl z-30 max-h-80 overflow-hidden flex flex-col">
+                  <div className="p-2 border-b border-slate-800 bg-slate-950/80">
                     <div className="relative">
                       <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" />
                       <input
@@ -106,13 +106,13 @@ export const RepoSelector: React.FC<RepoSelectorProps> = ({
                         placeholder="Search your repositories..."
                         value={repoSearch}
                         onChange={(e) => setRepoSearch(e.target.value)}
-                        className="w-full bg-slate-900 border border-slate-700/60 rounded-lg pl-8 pr-3 py-1 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+                        className="w-full bg-slate-900 border border-slate-700/60 rounded pl-8 pr-3 py-1 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 font-mono"
                         autoFocus
                       />
                     </div>
                   </div>
 
-                  <div className="overflow-y-auto p-1 divide-y divide-slate-800/40">
+                  <div className="overflow-y-auto p-1 divide-y divide-slate-800/40 font-mono text-xs">
                     {filteredRepos.length === 0 ? (
                       <div className="p-4 text-center text-xs text-slate-500">
                         No repositories found matching "{repoSearch}"
@@ -126,7 +126,7 @@ export const RepoSelector: React.FC<RepoSelectorProps> = ({
                             onSelectRepo(r.owner.login, r.name, r.default_branch);
                             setIsDropdownOpen(false);
                           }}
-                          className="w-full text-left p-2 hover:bg-slate-800/70 rounded-lg flex items-center justify-between gap-3 transition group"
+                          className="w-full text-left p-2 hover:bg-slate-800 rounded flex items-center justify-between gap-3 transition group"
                         >
                           <div className="min-w-0">
                             <div className="flex items-center gap-1.5 text-xs font-medium text-slate-200 group-hover:text-indigo-300">
@@ -138,14 +138,14 @@ export const RepoSelector: React.FC<RepoSelectorProps> = ({
                               <span className="truncate">{r.full_name}</span>
                             </div>
                             {r.description && (
-                              <p className="text-[11px] text-slate-400 truncate mt-0.5 max-w-md">
+                              <p className="text-[11px] text-slate-400 truncate mt-0.5 max-w-md font-sans">
                                 {r.description}
                               </p>
                             )}
                           </div>
                           <div className="flex items-center gap-2 text-[11px] text-slate-500 shrink-0">
                             {r.language && (
-                              <span className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 font-mono">
+                              <span className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 font-mono text-[10px]">
                                 {r.language}
                               </span>
                             )}
@@ -165,8 +165,9 @@ export const RepoSelector: React.FC<RepoSelectorProps> = ({
         </div>
 
         {/* Branch Selector & Refresh */}
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1 bg-slate-950 border border-slate-700/80 rounded-lg px-2.5 py-1 text-xs">
+        <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-1.5 bg-slate-900 border border-slate-700/80 rounded px-2.5 py-1 text-xs">
+            <span className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Branch:</span>
             <GitBranch className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
             <select
               id="select-branch"
@@ -192,7 +193,7 @@ export const RepoSelector: React.FC<RepoSelectorProps> = ({
             id="btn-refresh-tree"
             onClick={onRefreshTree}
             disabled={isLoadingTree}
-            className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 transition disabled:opacity-50"
+            className="p-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded border border-slate-700 transition disabled:opacity-50"
             title="Refresh repository file tree"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isLoadingTree ? 'animate-spin text-indigo-400' : ''}`} />

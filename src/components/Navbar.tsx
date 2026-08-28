@@ -44,123 +44,132 @@ export const Navbar: React.FC<NavbarProps> = ({
   };
 
   return (
-    <header id="app-navbar" className="bg-slate-900 border-b border-slate-800 sticky top-0 z-40">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        {/* Brand */}
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-blue-500 to-cyan-400 p-0.5 shadow-lg shadow-indigo-500/20 flex items-center justify-center">
-            <div className="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center">
-              <Github className="w-5 h-5 text-indigo-400" />
-            </div>
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="font-bold text-slate-100 tracking-tight text-lg">GitGemini</span>
-              <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
-                Code Orchestrator
-              </span>
-            </div>
-            <p className="text-xs text-slate-400 hidden sm:block">
-              Transform GitHub repositories with Gemini reasoning models
-            </p>
-          </div>
+    <header id="app-navbar" className="h-16 border-b border-slate-800 flex items-center justify-between px-4 sm:px-6 bg-slate-900/60 backdrop-blur-md sticky top-0 z-40">
+      {/* Brand */}
+      <div className="flex items-center gap-3 sm:gap-4">
+        <div className="w-8 h-8 bg-indigo-500 rounded flex items-center justify-center font-bold text-white shadow-md shadow-indigo-500/20 text-sm">
+          G
         </div>
-
-        {/* Center / Status */}
-        <div className="hidden md:flex items-center gap-4 text-xs">
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-800/80 border border-slate-700/60 text-slate-300">
-            <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-            <span>Gemini 3.1 Pro / 3.7 Flash</span>
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse ml-1" />
+        <div className="h-4 w-[1px] bg-slate-700 hidden sm:block"></div>
+        <div>
+          <div className="flex items-center gap-2">
+            <h1 className="text-xs sm:text-sm font-semibold tracking-wider uppercase text-slate-100">
+              Gemini Repository Bridge
+            </h1>
+            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/30 font-medium">
+              v2.5
+            </span>
           </div>
-
-          {isDemoMode && (
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-500/10 border border-amber-500/20 text-amber-400 font-medium">
-              <Layers className="w-3.5 h-3.5" />
-              <span>Interactive Demo Repo Active</span>
-            </div>
-          )}
+          <p className="text-[11px] text-slate-500 hidden md:block">
+            Programmatic repository refactoring & PR orchestration
+          </p>
         </div>
+      </div>
 
-        {/* Right Actions */}
-        <div className="flex items-center gap-3">
-          <button
-            id="btn-load-demo"
-            onClick={onLoadDemo}
-            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg text-slate-300 bg-slate-800 hover:bg-slate-700 hover:text-white border border-slate-700 transition"
-            title="Load sample repository files for fast testing"
-          >
-            <Layers className="w-3.5 h-3.5 text-indigo-400" />
-            <span>Sample Repo</span>
-          </button>
+      {/* Center Status Indicators */}
+      <div className="hidden lg:flex items-center gap-6">
+        <div className="flex items-center gap-2 text-xs">
+          <span className={`w-2 h-2 rounded-full ${githubToken ? 'bg-emerald-500' : 'bg-amber-400 animate-pulse'}`}></span>
+          <span className="text-slate-400 font-mono text-[11px]">
+            {githubToken ? 'GitHub API: Connected' : 'GitHub API: Demo Mode'}
+          </span>
+        </div>
+        <div className="flex items-center gap-2 text-xs">
+          <span className="w-2 h-2 rounded-full bg-indigo-400"></span>
+          <span className="text-slate-400 font-mono text-[11px]">
+            Gemini-3.1-Pro: Online
+          </span>
+        </div>
+        {isDemoMode && (
+          <div className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-slate-800/80 border border-slate-700 text-amber-400 text-[10px] uppercase font-bold tracking-wider">
+            <span>Demo Sandbox</span>
+          </div>
+        )}
+      </div>
 
-          {/* GitHub Auth Status / PAT Config */}
-          {githubUser ? (
-            <div className="flex items-center gap-2 bg-slate-800/90 border border-slate-700 rounded-lg p-1 pr-3">
-              <img
-                src={githubUser.avatar_url}
-                alt={githubUser.login}
-                className="w-6 h-6 rounded-md object-cover border border-slate-600"
-                referrerPolicy="no-referrer"
-              />
-              <span className="text-xs font-medium text-slate-200">{githubUser.login}</span>
-              <button
-                onClick={() => setIsTokenModalOpen(true)}
-                className="text-[11px] text-slate-400 hover:text-slate-200 ml-1 underline"
-              >
-                PAT
-              </button>
-            </div>
-          ) : (
+      {/* Right Actions */}
+      <div className="flex items-center gap-2.5 sm:gap-3">
+        <button
+          id="btn-load-demo"
+          onClick={onLoadDemo}
+          className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded text-slate-300 bg-slate-900 hover:bg-slate-800 border border-slate-700 transition uppercase tracking-wider text-[10px]"
+          title="Load sample repository files for fast testing"
+        >
+          <Layers className="w-3.5 h-3.5 text-indigo-400" />
+          <span>Sample Repo</span>
+        </button>
+
+        {/* GitHub Auth Status / PAT Config */}
+        {githubUser ? (
+          <div className="flex items-center gap-2 bg-slate-900 border border-slate-700 rounded p-1 pr-2.5">
+            <img
+              src={githubUser.avatar_url}
+              alt={githubUser.login}
+              className="w-6 h-6 rounded object-cover border border-slate-700"
+              referrerPolicy="no-referrer"
+            />
+            <span className="text-xs font-mono text-slate-200">{githubUser.login}</span>
             <button
-              id="btn-connect-github"
               onClick={() => setIsTokenModalOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 transition shadow-sm"
+              className="text-[10px] uppercase tracking-wider text-indigo-400 hover:text-indigo-300 ml-1 font-semibold"
             >
-              <Key className="w-3.5 h-3.5 text-amber-400" />
-              <span>{githubToken ? 'Edit GitHub Token' : 'Add GitHub PAT'}</span>
+              PAT
             </button>
-          )}
-
-          {/* Chat Assistant Toggle */}
+          </div>
+        ) : (
           <button
-            id="btn-toggle-assistant"
-            onClick={onToggleChat}
-            className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition ${
-              isChatOpen
-                ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20'
-                : 'bg-indigo-950/60 text-indigo-300 border border-indigo-800/50 hover:bg-indigo-900/60'
-            }`}
+            id="btn-connect-github"
+            onClick={() => setIsTokenModalOpen(true)}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded text-slate-200 bg-slate-900 hover:bg-slate-800 border border-slate-700 transition uppercase tracking-wider text-[10px]"
           >
-            <MessageSquareCode className="w-3.5 h-3.5" />
-            <span>AI Code Assistant</span>
+            <Key className="w-3.5 h-3.5 text-amber-400" />
+            <span>{githubToken ? 'Token' : 'Connect PAT'}</span>
           </button>
+        )}
+
+        {/* Chat Assistant Toggle */}
+        <button
+          id="btn-toggle-assistant"
+          onClick={onToggleChat}
+          className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded transition uppercase tracking-wider text-[10px] ${
+            isChatOpen
+              ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
+              : 'bg-indigo-950/50 text-indigo-300 border border-indigo-500/30 hover:bg-indigo-900/50'
+          }`}
+        >
+          <MessageSquareCode className="w-3.5 h-3.5" />
+          <span className="hidden sm:inline">AI Assistant</span>
+        </button>
+
+        {/* User initials / placeholder badge matching theme */}
+        <div className="w-8 h-8 rounded bg-slate-800 border border-slate-700 flex items-center justify-center text-xs font-mono font-semibold text-slate-300">
+          {githubUser ? githubUser.login.slice(0, 2).toUpperCase() : 'AI'}
         </div>
       </div>
 
       {/* PAT Modal */}
       {isTokenModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-          <div className="bg-slate-900 border border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
+          <div className="bg-slate-950 border border-slate-800 rounded-xl max-w-md w-full p-6 shadow-2xl space-y-4">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-slate-100 font-semibold text-base">
-                <ShieldCheck className="w-5 h-5 text-indigo-400" />
-                <span>GitHub Personal Access Token (PAT)</span>
+              <div className="flex items-center gap-2 text-slate-100 font-semibold text-sm uppercase tracking-wider">
+                <ShieldCheck className="w-4 h-4 text-indigo-400" />
+                <span>GitHub Personal Access Token</span>
               </div>
               <button
                 onClick={() => setIsTokenModalOpen(false)}
-                className="text-slate-400 hover:text-slate-200 text-sm"
+                className="text-slate-500 hover:text-slate-300 text-sm font-mono"
               >
                 ✕
               </button>
             </div>
 
             <p className="text-xs text-slate-400 leading-relaxed">
-              To read private repos, create isolated branches, commit files, and open Pull Requests on your behalf, provide a GitHub Personal Access Token with <code className="text-indigo-300 bg-slate-800 px-1 py-0.5 rounded">repo</code> scope.
+              To read private repos, create isolated branches, commit files, and open Pull Requests on your behalf, provide a GitHub Personal Access Token with <code className="text-indigo-400 bg-slate-900 px-1 py-0.5 rounded border border-slate-800">repo</code> scope.
             </p>
 
             <div className="space-y-2">
-              <label className="block text-xs font-medium text-slate-300">
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400">
                 Personal Access Token (classic or fine-grained)
               </label>
               <input
@@ -169,22 +178,22 @@ export const Navbar: React.FC<NavbarProps> = ({
                 placeholder="ghp_xxxxxxxxxxxxxxxxxxxx or github_pat_..."
                 value={tempToken}
                 onChange={(e) => setTempToken(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 font-mono"
+                className="w-full bg-slate-900 border border-slate-800 rounded px-3 py-2 text-xs text-slate-200 placeholder-slate-600 focus:outline-none focus:border-indigo-500 font-mono"
               />
             </div>
 
-            <div className="bg-slate-950/60 p-3 rounded-lg border border-slate-800 text-[11px] text-slate-400 space-y-1">
-              <div className="flex items-center gap-1.5 text-slate-300 font-medium">
+            <div className="bg-slate-900 border border-slate-800 p-3 rounded text-[11px] text-slate-400 space-y-1 font-mono">
+              <div className="flex items-center gap-1.5 text-slate-300 font-semibold">
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
                 <span>Required Scopes:</span>
               </div>
-              <p>• <strong>repo</strong> (Full control of private & public repositories)</p>
-              <p>• <strong>read:user</strong> (To read profile identity)</p>
+              <p>• <strong className="text-slate-200">repo</strong> (Full repository read/write)</p>
+              <p>• <strong className="text-slate-200">read:user</strong> (Profile identity)</p>
               <a
                 href="https://github.com/settings/tokens/new?scopes=repo,read:user&description=GitGemini%20AI%20Orchestrator"
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-1 text-indigo-400 hover:underline pt-1"
+                className="inline-flex items-center gap-1 text-indigo-400 hover:underline pt-1 text-xs"
               >
                 Generate token on GitHub <ExternalLink className="w-3 h-3" />
               </a>
@@ -198,23 +207,23 @@ export const Navbar: React.FC<NavbarProps> = ({
                     setTempToken('');
                     setIsTokenModalOpen(false);
                   }}
-                  className="px-3 py-1.5 text-xs text-rose-400 hover:text-rose-300 mr-auto"
+                  className="px-3 py-1.5 text-xs text-rose-400 hover:text-rose-300 mr-auto font-mono uppercase tracking-wider text-[10px]"
                 >
-                  Disconnect Token
+                  Disconnect
                 </button>
               )}
               <button
                 onClick={() => setIsTokenModalOpen(false)}
-                className="px-4 py-2 text-xs font-medium text-slate-400 hover:text-slate-200"
+                className="px-4 py-2 text-xs font-semibold uppercase tracking-widest text-slate-400 hover:text-slate-200"
               >
                 Cancel
               </button>
               <button
                 id="btn-save-pat"
                 onClick={handleSave}
-                className="px-4 py-2 text-xs font-semibold rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-600/20"
+                className="px-5 py-2 text-xs font-semibold rounded bg-indigo-600 hover:bg-indigo-500 text-white uppercase tracking-widest shadow-md shadow-indigo-600/30"
               >
-                Connect Token
+                Connect
               </button>
             </div>
           </div>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { FolderTree, Code2, Wand2, Sparkles, GitPullRequest } from 'lucide-react';
 import { Navbar } from './components/Navbar';
 import { RepoSelector } from './components/RepoSelector';
 import { FileTreeViewer } from './components/FileTreeViewer';
@@ -69,6 +70,7 @@ export default function App() {
   const [prResult, setPrResult] = useState<CommitAndPRResult | null>(null);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<{ text: string; type: 'info' | 'error' | 'success' } | null>(null);
+  const [mobileTab, setMobileTab] = useState<'files' | 'editor' | 'prompt'>('editor');
 
   // Execution Pipeline Steps
   const [pipelineSteps, setPipelineSteps] = useState<PipelineStep[]>([
@@ -461,14 +463,14 @@ export default function App() {
 
       {/* Toast Notification Banner */}
       {toastMessage && (
-        <div className="fixed bottom-4 right-4 z-50 animate-in fade-in slide-in-from-bottom-3 duration-200">
+        <div className="fixed bottom-16 right-6 z-50 animate-in fade-in slide-in-from-bottom-3 duration-200">
           <div
-            className={`px-4 py-2.5 rounded-xl border text-xs font-medium shadow-2xl flex items-center gap-2 ${
+            className={`px-4 py-2 rounded border text-xs font-mono shadow-2xl flex items-center gap-2 ${
               toastMessage.type === 'success'
-                ? 'bg-emerald-950/90 text-emerald-200 border-emerald-500/40'
+                ? 'bg-slate-900 text-emerald-300 border-emerald-500/40'
                 : toastMessage.type === 'error'
-                ? 'bg-rose-950/90 text-rose-200 border-rose-500/40'
-                : 'bg-slate-900/90 text-slate-200 border-slate-700/80'
+                ? 'bg-slate-900 text-rose-300 border-rose-500/40'
+                : 'bg-slate-900 text-slate-200 border-slate-700'
             }`}
           >
             <span>{toastMessage.text}</span>
@@ -499,14 +501,75 @@ export default function App() {
         }}
       />
 
+      {/* Mobile Tab Navigation (Visible on mobile/small screens, hidden on md+) */}
+      <div
+        id="mobile-workspace-tabs"
+        className="md:hidden flex items-center bg-slate-950 border-b border-slate-800 shrink-0 select-none z-10"
+      >
+        <button
+          id="mobile-tab-files"
+          onClick={() => setMobileTab('files')}
+          className={`flex-1 py-2.5 px-3 flex items-center justify-center gap-1.5 text-xs font-semibold uppercase tracking-wider transition border-b-2 ${
+            mobileTab === 'files'
+              ? 'text-indigo-400 border-indigo-500 bg-indigo-500/10'
+              : 'text-slate-400 border-transparent hover:text-slate-200 hover:bg-slate-900/50'
+          }`}
+        >
+          <FolderTree className="w-3.5 h-3.5" />
+          <span>Files</span>
+          <span className="ml-1 text-[10px] font-mono px-1 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-400">
+            {treeItems.filter((i) => i.type === 'blob').length}
+          </span>
+        </button>
+
+        <button
+          id="mobile-tab-editor"
+          onClick={() => setMobileTab('editor')}
+          className={`flex-1 py-2.5 px-3 flex items-center justify-center gap-1.5 text-xs font-semibold uppercase tracking-wider transition border-b-2 relative ${
+            mobileTab === 'editor'
+              ? 'text-indigo-400 border-indigo-500 bg-indigo-500/10'
+              : 'text-slate-400 border-transparent hover:text-slate-200 hover:bg-slate-900/50'
+          }`}
+        >
+          <Code2 className="w-3.5 h-3.5" />
+          <span>Editor</span>
+          {Boolean(modifiedCode && modifiedCode !== originalCode) && (
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" title="Has modifications" />
+          )}
+        </button>
+
+        <button
+          id="mobile-tab-prompt"
+          onClick={() => setMobileTab('prompt')}
+          className={`flex-1 py-2.5 px-3 flex items-center justify-center gap-1.5 text-xs font-semibold uppercase tracking-wider transition border-b-2 relative ${
+            mobileTab === 'prompt'
+              ? 'text-indigo-400 border-indigo-500 bg-indigo-500/10'
+              : 'text-slate-400 border-transparent hover:text-slate-200 hover:bg-slate-900/50'
+          }`}
+        >
+          <Wand2 className="w-3.5 h-3.5 text-indigo-400" />
+          <span>Prompt & PR</span>
+          {isTransforming && (
+            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping" />
+          )}
+          {isCommitting && (
+            <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-ping" />
+          )}
+        </button>
+      </div>
+
       {/* Main 3-Column Studio Workspace */}
       <main className="flex-1 flex flex-col md:flex-row overflow-hidden relative">
         {/* Left Column: Repository File Tree */}
         <FileTreeViewer
           items={treeItems}
           selectedPath={selectedFilePath}
-          onSelectFile={handleSelectFile}
+          onSelectFile={(path) => {
+            handleSelectFile(path);
+            setMobileTab('editor');
+          }}
           isLoading={isLoadingTree}
+          className={mobileTab === 'files' ? 'flex' : 'hidden md:flex'}
         />
 
         {/* Center Column: Diff / Code Editor View */}
@@ -522,6 +585,7 @@ export default function App() {
             setTransformResult(null);
             showToast('Reverted modifications back to original code', 'info');
           }}
+          className={mobileTab === 'editor' ? 'flex' : 'hidden md:flex'}
         />
 
         {/* Right Column: Gemini Prompt & Git Automation Pipeline */}
@@ -542,7 +606,10 @@ export default function App() {
           prBody={prBody}
           onChangePrBody={setPrBody}
           isTransforming={isTransforming}
-          onRunTransform={handleRunTransform}
+          onRunTransform={async () => {
+            await handleRunTransform();
+            setMobileTab('editor');
+          }}
           isCommitting={isCommitting}
           onCommitAndPR={handleCommitAndPR}
           hasModifiedCode={Boolean(modifiedCode && modifiedCode !== originalCode)}
@@ -553,8 +620,33 @@ export default function App() {
             const btn = document.getElementById('btn-connect-github');
             btn?.click();
           }}
+          className={mobileTab === 'prompt' ? 'flex' : 'hidden md:flex'}
         />
       </main>
+
+      {/* Bottom Geometric Status Bar */}
+      <footer className="h-10 border-t border-slate-800 bg-slate-950 px-4 sm:px-6 flex items-center justify-between text-xs shrink-0 select-none">
+        <div className="flex items-center gap-4 text-[11px] font-mono">
+          <div className="flex items-center gap-1.5 text-slate-500">
+            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Active File:</span>
+            <span className="text-slate-300 font-medium">{selectedFilePath || 'None'}</span>
+          </div>
+          <div className="h-3 w-[1px] bg-slate-800 hidden sm:block"></div>
+          <div className="hidden sm:flex items-center gap-1.5 text-slate-500">
+            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Output Branch:</span>
+            <span className="text-indigo-400 font-medium">{branchName}</span>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3 text-[11px] font-mono text-slate-500">
+          <div className="flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+            <span>REST API Ready</span>
+          </div>
+          <div className="h-3 w-[1px] bg-slate-800"></div>
+          <span>OCTOKIT v20.0</span>
+        </div>
+      </footer>
 
       {/* Multi-Turn Gemini Chat Assistant Drawer */}
       <ChatAssistantDrawer
