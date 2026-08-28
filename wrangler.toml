@@ -1,0 +1,8 @@
+name = "github-gemini-agent"
+main = "worker.ts"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+# Static assets if using Cloudflare Pages / Workers Sites
+# [site]
+# bucket = "./dist"
