@@ -9,6 +9,7 @@ import {
   Layers,
   ExternalLink,
   ShieldCheck,
+  Lock,
 } from 'lucide-react';
 import { GitHubUser } from '../types';
 
@@ -22,6 +23,7 @@ interface NavbarProps {
   onLoadDemo: () => void;
   isDemoMode: boolean;
   hasGeminiKey: boolean;
+  onLockApp?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -34,6 +36,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onLoadDemo,
   isDemoMode,
   hasGeminiKey,
+  onLockApp,
 }) => {
   const [isTokenModalOpen, setIsTokenModalOpen] = useState(false);
   const [tempToken, setTempToken] = useState(githubToken);
@@ -140,6 +143,18 @@ export const Navbar: React.FC<NavbarProps> = ({
           <MessageSquareCode className="w-3.5 h-3.5" />
           <span className="hidden sm:inline">AI Assistant</span>
         </button>
+
+        {/* Lock PIN Button */}
+        {onLockApp && (
+          <button
+            id="btn-lock-app"
+            onClick={onLockApp}
+            title="Lock Studio (Require PIN)"
+            className="p-1.5 rounded text-slate-400 hover:text-slate-200 bg-slate-900 hover:bg-slate-800 border border-slate-700/80 transition"
+          >
+            <Lock className="w-3.5 h-3.5" />
+          </button>
+        )}
 
         {/* User initials / placeholder badge matching theme */}
         <div className="w-8 h-8 rounded bg-slate-800 border border-slate-700 flex items-center justify-center text-xs font-mono font-semibold text-slate-300">

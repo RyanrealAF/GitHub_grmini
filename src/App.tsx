@@ -7,6 +7,7 @@ import { CodeEditorDiff } from './components/CodeEditorDiff';
 import { PromptControlPanel } from './components/PromptControlPanel';
 import { ChatAssistantDrawer } from './components/ChatAssistantDrawer';
 import { PRResultModal } from './components/PRResultModal';
+import { PinLockScreen } from './components/PinLockScreen';
 import {
   GitHubUser,
   GitHubRepo,
@@ -23,7 +24,14 @@ import {
   SAMPLE_FILES,
 } from './data/sampleRepos';
 
+const REQUIRED_APP_PIN = '840140';
+
 export default function App() {
+  // Security PIN Lock State
+  const [isUnlocked, setIsUnlocked] = useState<boolean>(() => {
+    return sessionStorage.getItem('gitgemini_pin_unlocked') === 'true';
+  });
+
   // Authentication & Configuration State
   const [githubToken, setGithubToken] = useState<string>(() => {
     return localStorage.getItem('gitgemini_github_token') || '';
@@ -446,6 +454,22 @@ export default function App() {
     }
   };
 
+  const handleUnlock = () => {
+    setIsUnlocked(true);
+    sessionStorage.setItem('gitgemini_pin_unlocked', 'true');
+    showToast('Access Granted. Workspace Unlocked.', 'success');
+  };
+
+  const handleLock = () => {
+    setIsUnlocked(false);
+    sessionStorage.removeItem('gitgemini_pin_unlocked');
+    showToast('Workspace locked.', 'info');
+  };
+
+  if (!isUnlocked) {
+    return <PinLockScreen requiredPin={REQUIRED_APP_PIN} onUnlocked={handleUnlock} />;
+  }
+
   return (
     <div id="gitgemini-app" className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-indigo-600 selection:text-white">
       {/* Top Navbar */}
@@ -459,6 +483,7 @@ export default function App() {
         onLoadDemo={handleLoadDemo}
         isDemoMode={isDemoMode}
         hasGeminiKey={hasGeminiKey}
+        onLockApp={handleLock}
       />
 
       {/* Toast Notification Banner */}
