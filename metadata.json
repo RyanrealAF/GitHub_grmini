@@ -1,0 +1,7 @@
+{
+  "name": "GitHub Repo AI Modifier",
+  "description": "Programmatically transform GitHub repositories using Gemini models with automated branch creation, diff preview, pull requests, and multi-turn codebase assistant.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
