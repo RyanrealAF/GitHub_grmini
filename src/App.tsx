@@ -93,41 +93,53 @@ export default function App() {
     setTimeout(() => setToastMessage(null), 4000);
   };
 
-  // Validate GitHub Token on load or update
-  const validateToken = useCallback(async (token: string) => {
-    if (!token) {
-      setGithubUser(null);
-      return;
-    }
+  // Validate GitHub Token or auto-connect via server environment on load or update
+  const validateToken = useCallback(async (token?: string) => {
     try {
-      const res = await fetch('/api/github/validate', {
-        headers: { 'x-github-token': token },
-      });
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers['x-github-token'] = token;
+      }
+      const res = await fetch('/api/github/validate', { headers });
       const data = await res.json();
-      if (res.ok && data.valid) {
+      if (res.ok && data.valid && data.user) {
         setGithubUser(data.user);
+        setIsDemoMode(false);
         showToast(`Authenticated as GitHub user @${data.user.login}`, 'success');
-        // Fetch user repos
+        // Fetch user repos and auto-select primary repo
         loadUserRepos(token);
       } else {
-        setGithubUser(null);
-        showToast(data.error || 'Invalid GitHub token', 'error');
+        if (token) {
+          setGithubUser(null);
+          showToast(data.error || 'Invalid GitHub token', 'error');
+        }
       }
     } catch (err) {
       console.error(err);
-      setGithubUser(null);
+      if (token) {
+        setGithubUser(null);
+      }
     }
   }, []);
 
-  const loadUserRepos = async (token: string) => {
+  const loadUserRepos = async (token?: string) => {
     setIsLoadingRepos(true);
     try {
-      const res = await fetch('/api/github/repos', {
-        headers: { 'x-github-token': token },
-      });
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers['x-github-token'] = token;
+      }
+      const res = await fetch('/api/github/repos', { headers });
       const data = await res.json();
-      if (res.ok && data.repos) {
+      if (res.ok && data.repos && data.repos.length > 0) {
         setUserRepos(data.repos);
+        setIsDemoMode(false);
+        // Automatically select and load the most recently updated repository
+        const firstRepo = data.repos[0];
+        setOwner(firstRepo.owner.login);
+        setRepo(firstRepo.name);
+        setBranch(firstRepo.default_branch || 'main');
+        fetchLiveTree(firstRepo.owner.login, firstRepo.name, firstRepo.default_branch || 'main');
       }
     } catch (err) {
       console.error('Failed to load user repos:', err);
@@ -137,9 +149,8 @@ export default function App() {
   };
 
   useEffect(() => {
-    if (githubToken) {
-      validateToken(githubToken);
-    }
+    // Automatically attempt connection on startup (works with saved token or server GITHUB_TOKEN)
+    validateToken(githubToken || undefined);
   }, [githubToken, validateToken]);
 
   const handleSaveToken = (token: string) => {

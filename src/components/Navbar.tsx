@@ -72,9 +72,9 @@ export const Navbar: React.FC<NavbarProps> = ({
       {/* Center Status Indicators */}
       <div className="hidden lg:flex items-center gap-6">
         <div className="flex items-center gap-2 text-xs">
-          <span className={`w-2 h-2 rounded-full ${githubToken ? 'bg-emerald-500' : 'bg-amber-400 animate-pulse'}`}></span>
+          <span className={`w-2 h-2 rounded-full ${githubUser || githubToken ? 'bg-emerald-500' : 'bg-amber-400 animate-pulse'}`}></span>
           <span className="text-slate-400 font-mono text-[11px]">
-            {githubToken ? 'GitHub API: Connected' : 'GitHub API: Demo Mode'}
+            {githubUser ? `GitHub: @${githubUser.login}` : (githubToken ? 'GitHub API: Connected' : 'GitHub API: Demo Mode')}
           </span>
         </div>
         <div className="flex items-center gap-2 text-xs">
