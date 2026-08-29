@@ -20,8 +20,6 @@ interface NavbarProps {
   onClearToken: () => void;
   isChatOpen: boolean;
   onToggleChat: () => void;
-  onLoadDemo: () => void;
-  isDemoMode: boolean;
   hasGeminiKey: boolean;
   onLockApp?: () => void;
 }
@@ -33,8 +31,6 @@ export const Navbar: React.FC<NavbarProps> = ({
   onClearToken,
   isChatOpen,
   onToggleChat,
-  onLoadDemo,
-  isDemoMode,
   hasGeminiKey,
   onLockApp,
 }) => {
@@ -74,7 +70,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div className="flex items-center gap-2 text-xs">
           <span className={`w-2 h-2 rounded-full ${githubUser || githubToken ? 'bg-emerald-500' : 'bg-amber-400 animate-pulse'}`}></span>
           <span className="text-slate-400 font-mono text-[11px]">
-            {githubUser ? `GitHub: @${githubUser.login}` : (githubToken ? 'GitHub API: Connected' : 'GitHub API: Demo Mode')}
+            {githubUser ? `GitHub: @${githubUser.login}` : (githubToken ? 'GitHub API: Connected' : 'GitHub API: Ready')}
           </span>
         </div>
         <div className="flex items-center gap-2 text-xs">
@@ -83,25 +79,10 @@ export const Navbar: React.FC<NavbarProps> = ({
             Gemini-3.1-Pro: Online
           </span>
         </div>
-        {isDemoMode && (
-          <div className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-slate-800/80 border border-slate-700 text-amber-400 text-[10px] uppercase font-bold tracking-wider">
-            <span>Demo Sandbox</span>
-          </div>
-        )}
       </div>
 
       {/* Right Actions */}
       <div className="flex items-center gap-2.5 sm:gap-3">
-        <button
-          id="btn-load-demo"
-          onClick={onLoadDemo}
-          className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded text-slate-300 bg-slate-900 hover:bg-slate-800 border border-slate-700 transition uppercase tracking-wider text-[10px]"
-          title="Load sample repository files for fast testing"
-        >
-          <Layers className="w-3.5 h-3.5 text-indigo-400" />
-          <span>Sample Repo</span>
-        </button>
-
         {/* Chat Assistant Toggle */}
         <button
           id="btn-toggle-assistant"

@@ -18,11 +18,6 @@ import {
   TransformResult,
   CommitAndPRResult,
 } from './types';
-import {
-  SAMPLE_REPO,
-  SAMPLE_TREE,
-  SAMPLE_FILES,
-} from './data/sampleRepos';
 
 const REQUIRED_APP_PIN = '840140';
 
@@ -40,35 +35,31 @@ export default function App() {
   const [hasGeminiKey, setHasGeminiKey] = useState(true);
 
   // Repository & File State
-  const [owner, setOwner] = useState('acme-corp');
-  const [repo, setRepo] = useState('nexus-backend-service');
+  const [owner, setOwner] = useState('');
+  const [repo, setRepo] = useState('');
   const [branch, setBranch] = useState('main');
-  const [branches, setBranches] = useState<{ name: string; commitSha: string; protected?: boolean }[]>([
-    { name: 'main', commitSha: 'main-sha-01' },
-    { name: 'staging', commitSha: 'staging-sha-02' },
-  ]);
+  const [branches, setBranches] = useState<{ name: string; commitSha: string; protected?: boolean }[]>([]);
   const [userRepos, setUserRepos] = useState<GitHubRepo[]>([]);
-  const [treeItems, setTreeItems] = useState<RepoTreeItem[]>(SAMPLE_TREE);
-  const [selectedFilePath, setSelectedFilePath] = useState('src/auth/jwtService.ts');
-  const [originalCode, setOriginalCode] = useState(SAMPLE_FILES['src/auth/jwtService.ts'].content);
-  const [fileSha, setFileSha] = useState<string | undefined>(SAMPLE_FILES['src/auth/jwtService.ts'].sha);
+  const [treeItems, setTreeItems] = useState<RepoTreeItem[]>([]);
+  const [selectedFilePath, setSelectedFilePath] = useState('');
+  const [originalCode, setOriginalCode] = useState('');
+  const [fileSha, setFileSha] = useState<string | undefined>(undefined);
   const [modifiedCode, setModifiedCode] = useState('');
 
   // Prompting & Transformation State
   const [instructions, setInstructions] = useState(
-    'Refactor this JWT service to support automated token refresh rotation, revoke blacklist validation, and strict error logging.'
+    'Refactor this file to include strict input validation, comprehensive error logging, and high performance.'
   );
   const [selectedModel, setSelectedModel] = useState<GeminiModelId>('gemini-3.1-pro-preview');
   const [thinking, setThinking] = useState(true);
-  const [branchName, setBranchName] = useState('gemini/feat-jwt-rotation');
-  const [commitMessage, setCommitMessage] = useState('feat(auth): add JWT refresh token rotation and error safety');
-  const [prTitle, setPrTitle] = useState('AI: Add JWT Refresh Token Rotation & Error Safety');
+  const [branchName, setBranchName] = useState('gemini/feat-update');
+  const [commitMessage, setCommitMessage] = useState('feat: automated code transformation via Gemini');
+  const [prTitle, setPrTitle] = useState('AI: Automated Code Update & Refactor');
   const [prBody, setPrBody] = useState(
-    '### Summary of Changes\n- Refactored `jwtService.ts` to include refresh token rotation logic.\n- Hardened token verification against null payloads.\n- Powered by Gemini 3.1 Pro code orchestration.'
+    '### Summary of Changes\n- Automated file refactoring and optimization powered by Gemini 3.1 Pro code orchestration.'
   );
 
   // Status & Progress State
-  const [isDemoMode, setIsDemoMode] = useState(true);
   const [isLoadingRepos, setIsLoadingRepos] = useState(false);
   const [isLoadingTree, setIsLoadingTree] = useState(false);
   const [isLoadingFile, setIsLoadingFile] = useState(false);
@@ -104,7 +95,6 @@ export default function App() {
       const data = await res.json();
       if (res.ok && data.valid && data.user) {
         setGithubUser(data.user);
-        setIsDemoMode(false);
         showToast(`Authenticated as GitHub user @${data.user.login}`, 'success');
         // Fetch user repos and auto-select primary repo
         loadUserRepos(token);
@@ -133,7 +123,6 @@ export default function App() {
       const data = await res.json();
       if (res.ok && data.repos && data.repos.length > 0) {
         setUserRepos(data.repos);
-        setIsDemoMode(false);
         // Automatically select and load the most recently updated repository
         const firstRepo = data.repos[0];
         setOwner(firstRepo.owner.login);
@@ -156,19 +145,23 @@ export default function App() {
   const handleSaveToken = (token: string) => {
     setGithubToken(token);
     localStorage.setItem('gitgemini_github_token', token);
-    setIsDemoMode(false);
     validateToken(token);
   };
 
   const handleClearToken = () => {
     setGithubToken('');
     setGithubUser(null);
+    setUserRepos([]);
+    setTreeItems([]);
+    setSelectedFilePath('');
+    setOriginalCode('');
     localStorage.removeItem('gitgemini_github_token');
-    showToast('GitHub token removed. Switched to demo mode.', 'info');
+    showToast('GitHub token removed.', 'info');
   };
 
   // Fetch file tree for a live repository
   const fetchLiveTree = async (repoOwner: string, repoName: string, targetBranch: string) => {
+    if (!repoOwner || !repoName) return;
     setIsLoadingTree(true);
     try {
       const headers: Record<string, string> = {};
@@ -185,7 +178,6 @@ export default function App() {
       }
 
       setTreeItems(data.items || []);
-      setIsDemoMode(false);
 
       // Also get branches
       const detailsRes = await fetch(
@@ -219,6 +211,7 @@ export default function App() {
     filePath: string,
     targetBranch: string
   ) => {
+    if (!repoOwner || !repoName || !filePath) return;
     setIsLoadingFile(true);
     try {
       const headers: Record<string, string> = {};
@@ -262,38 +255,7 @@ export default function App() {
 
   // Handle selecting a file from the tree
   const handleSelectFile = (path: string) => {
-    if (isDemoMode && SAMPLE_FILES[path]) {
-      setSelectedFilePath(path);
-      setOriginalCode(SAMPLE_FILES[path].content);
-      setFileSha(SAMPLE_FILES[path].sha);
-      setModifiedCode('');
-      setTransformResult(null);
-      const cleanFileName = path.split('/').pop()?.replace(/[^a-zA-Z0-9]/g, '-') || 'patch';
-      setBranchName(`gemini/mod-${cleanFileName}-${Math.random().toString(36).substring(2, 6)}`);
-      return;
-    }
-
     fetchLiveFile(owner, repo, path, branch);
-  };
-
-  // Load Built-in Demo Repository
-  const handleLoadDemo = () => {
-    setIsDemoMode(true);
-    setOwner(SAMPLE_REPO.owner.login);
-    setRepo(SAMPLE_REPO.name);
-    setBranch(SAMPLE_REPO.default_branch);
-    setBranches([
-      { name: 'main', commitSha: 'main-sha-01' },
-      { name: 'staging', commitSha: 'staging-sha-02' },
-    ]);
-    setTreeItems(SAMPLE_TREE);
-    setSelectedFilePath('src/auth/jwtService.ts');
-    setOriginalCode(SAMPLE_FILES['src/auth/jwtService.ts'].content);
-    setFileSha(SAMPLE_FILES['src/auth/jwtService.ts'].sha);
-    setModifiedCode('');
-    setTransformResult(null);
-    setBranchName('gemini/feat-jwt-rotation');
-    showToast('Loaded interactive sample microservice repository', 'info');
   };
 
   // Run Gemini Code Transformation
@@ -367,6 +329,11 @@ export default function App() {
       return;
     }
 
+    if (!owner || !repo) {
+      showToast('Please select or specify a target repository first', 'error');
+      return;
+    }
+
     setIsCommitting(true);
 
     // Reset pipeline steps
@@ -378,46 +345,6 @@ export default function App() {
     ]);
 
     try {
-      // If in demo mode without PAT, simulate realistic workflow with real delay and realistic responses
-      if (isDemoMode && !githubToken) {
-        await new Promise((r) => setTimeout(r, 600));
-        setPipelineSteps((prev) =>
-          prev.map((s, idx) => (idx === 0 ? { ...s, status: 'success', detail: 'SHA 4f8b9e1' } : idx === 1 ? { ...s, status: 'running' } : s))
-        );
-
-        await new Promise((r) => setTimeout(r, 600));
-        setPipelineSteps((prev) =>
-          prev.map((s, idx) => (idx === 1 ? { ...s, status: 'success', detail: 'Created' } : idx === 2 ? { ...s, status: 'running' } : s))
-        );
-
-        await new Promise((r) => setTimeout(r, 700));
-        setPipelineSteps((prev) =>
-          prev.map((s, idx) => (idx === 2 ? { ...s, status: 'success', detail: 'Blob 82b1c4' } : idx === 3 ? { ...s, status: 'running' } : s))
-        );
-
-        await new Promise((r) => setTimeout(r, 600));
-        setPipelineSteps((prev) =>
-          prev.map((s, idx) => (idx === 3 ? { ...s, status: 'success', detail: 'PR #42' } : s))
-        );
-
-        const simulatedResult: CommitAndPRResult = {
-          success: true,
-          branchName,
-          branchUrl: `https://github.com/${owner}/${repo}/tree/${branchName}`,
-          commitSha: '4f8b9e1a2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f',
-          commitUrl: `https://github.com/${owner}/${repo}/commit/4f8b9e1`,
-          prNumber: 42,
-          prUrl: `https://github.com/${owner}/${repo}/pull/42`,
-          prTitle,
-          repoFullName: `${owner}/${repo}`,
-          isSimulated: true,
-        };
-
-        setPrResult(simulatedResult);
-        showToast('Pull Request workflow simulated successfully!', 'success');
-        return;
-      }
-
       // Live GitHub API Call
       const headers: Record<string, string> = { 'Content-Type': 'application/json' };
       if (githubToken) headers['x-github-token'] = githubToken;
@@ -491,8 +418,6 @@ export default function App() {
         onClearToken={handleClearToken}
         isChatOpen={isChatOpen}
         onToggleChat={() => setIsChatOpen(!isChatOpen)}
-        onLoadDemo={handleLoadDemo}
-        isDemoMode={isDemoMode}
         hasGeminiKey={hasGeminiKey}
         onLockApp={handleLock}
       />
@@ -526,12 +451,10 @@ export default function App() {
         onSelectRepo={handleSelectRepo}
         onSelectBranch={(b) => {
           setBranch(b);
-          if (!isDemoMode) fetchLiveTree(owner, repo, b);
+          fetchLiveTree(owner, repo, b);
         }}
         onRefreshTree={() => {
-          if (isDemoMode) {
-            handleLoadDemo();
-          } else {
+          if (owner && repo) {
             fetchLiveTree(owner, repo, branch);
           }
         }}

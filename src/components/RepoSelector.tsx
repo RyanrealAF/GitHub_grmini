@@ -37,9 +37,17 @@ export const RepoSelector: React.FC<RepoSelectorProps> = ({
   onSelectBranch,
   onRefreshTree,
 }) => {
-  const [customInput, setCustomInput] = useState(`${owner}/${repo}`);
+  const [customInput, setCustomInput] = useState(owner && repo ? `${owner}/${repo}` : '');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [repoSearch, setRepoSearch] = useState('');
+
+  React.useEffect(() => {
+    if (owner && repo) {
+      setCustomInput(`${owner}/${repo}`);
+    } else {
+      setCustomInput('');
+    }
+  }, [owner, repo]);
 
   const handleManualSubmit = (e: React.FormEvent) => {
     e.preventDefault();
