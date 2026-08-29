@@ -102,34 +102,6 @@ export const Navbar: React.FC<NavbarProps> = ({
           <span>Sample Repo</span>
         </button>
 
-        {/* GitHub Auth Status / PAT Config */}
-        {githubUser ? (
-          <div className="flex items-center gap-2 bg-slate-900 border border-slate-700 rounded p-1 pr-2.5">
-            <img
-              src={githubUser.avatar_url}
-              alt={githubUser.login}
-              className="w-6 h-6 rounded object-cover border border-slate-700"
-              referrerPolicy="no-referrer"
-            />
-            <span className="text-xs font-mono text-slate-200">{githubUser.login}</span>
-            <button
-              onClick={() => setIsTokenModalOpen(true)}
-              className="text-[10px] uppercase tracking-wider text-indigo-400 hover:text-indigo-300 ml-1 font-semibold"
-            >
-              PAT
-            </button>
-          </div>
-        ) : (
-          <button
-            id="btn-connect-github"
-            onClick={() => setIsTokenModalOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded text-slate-200 bg-slate-900 hover:bg-slate-800 border border-slate-700 transition uppercase tracking-wider text-[10px]"
-          >
-            <Key className="w-3.5 h-3.5 text-amber-400" />
-            <span>{githubToken ? 'Token' : 'Connect PAT'}</span>
-          </button>
-        )}
-
         {/* Chat Assistant Toggle */}
         <button
           id="btn-toggle-assistant"
